@@ -87,6 +87,7 @@ for category in category_list:
     plt.title(category + " heatmap")
 
     #fig, ax = plt.subplots()
+    plt.subplots_adjust(left = 0.262, bottom = 0.26, right = 0.857)
 
     plt.savefig('./figures/'+category + '_heatmap.png')
 
@@ -98,11 +99,13 @@ for category in category_list:
     #print(mat)
     dists = squareform(matrix_df)
     linkage_matrix = linkage(dists, "single")
+
     dendrogram(linkage_matrix, labels=unique_items_in_category)
     plt.title(category + " dendrogram")
     plt.xticks(rotation='vertical')
 
     #fig, ax = plt.subplots()
+    plt.subplots_adjust(left=0.262, bottom=0.26, right=0.857)
 
     plt.savefig('./figures/'+category + '_dendrogram.png')
 
