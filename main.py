@@ -3,22 +3,14 @@
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 
-import csv
-import pandas as pd
-import numpy as np
-import math
+
 import matplotlib.pyplot as plt
-
 import numpy as np
-
+import pandas as pd
+import seaborn as sns
 from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
-
-import matplotlib.pyplot as plt
-
-import matplotlib
-import json
-import re
+from sklearn.manifold import MDS
 
 df = pd.read_csv('DistanceData.csv')
 print(df)
@@ -50,65 +42,48 @@ for category in category_list:
     print(matrix_df)
 
     for index, row in current_category_data.iterrows():
-        #print(matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']])
-
-        #if not math.isnan(matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']]):
-        #    if matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] != 0:
-        #        print('Error: duplicate distance at ', row['Unique_pair_item1'], row['Unique_pair_item2'])
-        #    else:
-        #        matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = row['Distance_m']
-
-        #if not math.isnan(matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']]):
-        #    if matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] != 0:
-        #        print('Error: duplicate distance at ', row['Unique_pair_item2'], row['Unique_pair_item1'])
-        #    else:
-        #        matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = row['Distance_m']
-
         matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = row['Distance_m']
         matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = row['Distance_m']
 
-    print(matrix_df)
+    #print(matrix_df)
 
+    #plt heatmap
     myindex = unique_items_in_category
     columns = unique_items_in_category
-
-
     plt.pcolor(matrix_df)#, cmap='seismic'
-
     plt.yticks(np.arange(0.5, len(myindex), 1), myindex)
-
     plt.xticks(np.arange(0.5, len(columns), 1), columns, rotation='vertical')
     plt.colorbar()
-
     ax = plt.gca()
     ax.invert_yaxis()
-
-
     plt.title(category + " heatmap")
-
-    #fig, ax = plt.subplots()
     plt.subplots_adjust(left = 0.262, bottom = 0.26, right = 0.857)
-
     plt.savefig('./figures/'+category + '_heatmap.png')
-
     plt.show()
 
-
-    #Earth and flowers duplicate data
-    #mat = matrix_df.to_numpy()
-    #print(mat)
+    #dendrogram
     dists = squareform(matrix_df)
     linkage_matrix = linkage(dists, "single")
-
     dendrogram(linkage_matrix, labels=unique_items_in_category)
     plt.title(category + " dendrogram")
     plt.xticks(rotation='vertical')
-
-    #fig, ax = plt.subplots()
     plt.subplots_adjust(left=0.262, bottom=0.26, right=0.857)
-
     plt.savefig('./figures/'+category + '_dendrogram.png')
+    plt.show()
 
+    #seaborn cluster + dendrogram
+    g = sns.clustermap(matrix_df)
+    plt.title(category + " dendrogram and clustered heatmap")
+    plt.savefig('./figures/' + category + '_dendrogram_and_clustered_heat_map.png')
+    plt.show()
+
+    #MDS
+    embedding = MDS(n_components=2, dissimilarity='precomputed').fit_transform(matrix_df)
+    fig = plt.figure(figsize=(15, 8))
+    ax = fig.add_subplot(2, 5, 3)
+    ax.scatter(embedding[:, 0], embedding[:, 1], cmap=plt.cm.Spectral)
+    plt.title(category + " MDS")
+    plt.savefig('./figures/' + category + '_MDS.png')
     plt.show()
 
 #need mroe whitespace
