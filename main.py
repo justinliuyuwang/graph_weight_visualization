@@ -42,8 +42,12 @@ for category in category_list:
     print(matrix_df)
 
     for index, row in current_category_data.iterrows():
-        matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = row['Distance_m']
-        matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = row['Distance_m']
+        #if row['Distance_m'] < 0.08:
+            matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = row['Distance_m']
+            matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = row['Distance_m']
+        #else:
+         #   matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = 1
+         #   matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = 1
 
     #print(matrix_df)
 
@@ -85,5 +89,22 @@ for category in category_list:
     plt.title(category + " MDS")
     plt.savefig('./figures/' + category + '_MDS.png')
     plt.show()
+
+
+    #force-directed graph
+    import networkx as nx
+    import string
+
+
+    A = matrix_df
+    G = nx.from_pandas_adjacency(matrix_df)
+
+    pos = nx.spring_layout(G, weight='weight')
+    # pos = nx.spectral_layout(G)
+    nx.draw_networkx(G, with_labels=True, node_size=4, width=0.3, font_size=3, pos=pos)
+    nx.draw_networkx_labels(G, pos=pos)
+    plt.show()
+
+    #need a cutoff for force directed... see matrix filling above. will work with dynamic cutoffs
 
 #need mroe whitespace
