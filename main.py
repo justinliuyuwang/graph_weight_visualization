@@ -46,8 +46,8 @@ for category in category_list:
             matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = row['Distance_m']
             matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = row['Distance_m']
         #else:
-         #   matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = 1
-         #   matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = 1
+         #   matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = 0
+         #   matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = 0
 
     #print(matrix_df)
 
