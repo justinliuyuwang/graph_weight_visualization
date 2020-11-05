@@ -12,11 +12,12 @@ from pathlib import Path
 
 categories = glob.glob('inputs/rawdata/*_raw')
 
-
 my_filename = "inputs/cleandata/distance_data.csv"
 if not Path(my_filename).is_file():
     f = open(my_filename, "x")
     f.close()
+
+flag = 0
 
 for directory_path in categories:
 
@@ -26,7 +27,6 @@ for directory_path in categories:
 
     myDict = {}
 
-
     for file_path in files:
 
         mat_contents = sp.loadmat(file_path)
@@ -35,21 +35,19 @@ for directory_path in categories:
         for index in range(len(data["stimuli"])):
             data["stimuli"][index] = data["stimuli"][index].replace("\ufeff", "").replace(" ", "")
 
+        # print(data["stimuli"])
+        # print(data["rdmutv"])
 
-        #print(data["stimuli"])
-        #print(data["rdmutv"])
-
-        #for index in range(len(data["rdmutv"][0])):
+        # for index in range(len(data["rdmutv"][0])):
         #    print(data["rdmutv"][0][index])
-
 
         n = len(data["stimuli"])
         j = 0
         k = 1
         m = 0
 
-        while j < n-1:
-            k = j+1
+        while j < n - 1:
+            k = j + 1
             while k < n:
                 item_pair = data['stimuli'][j] + '_AND_' + data['stimuli'][k]
                 if item_pair not in myDict:
@@ -60,7 +58,7 @@ for directory_path in categories:
                 m += 1
             j += 1
 
-    #print(myDict)
+    # print(myDict)
 
     first_item_list = []
     second_item_list = []
@@ -78,14 +76,19 @@ for directory_path in categories:
         mean_distance_list.append(mean(myDict[key]))
         SD_list.append(stdev(myDict[key]))
 
-
-    data = { 'Category': category_list,
-             'Unique_pair_item1': first_item_list,
-             'Unique_pair_item2': second_item_list,
-             'Distance_m': mean_distance_list,
-             'Distance_sd': SD_list
-    }
+    data = {'Category': category_list,
+            'Unique_pair_item1': first_item_list,
+            'Unique_pair_item2': second_item_list,
+            'Distance_m': mean_distance_list,
+            'Distance_sd': SD_list
+            }
 
     df = pd.DataFrame(data, columns=['Category', 'Unique_pair_item1', 'Unique_pair_item2', 'Distance_m', 'Distance_sd'])
 
-    df.to_csv("inputs/cleandata/distance_data.csv", index=False, mode='a')
+    if flag == 1:
+        df.to_csv("inputs/cleandata/distance_data.csv", index=False, mode='a', index_label=False, header=False)
+    else:
+        df.to_csv("inputs/cleandata/distance_data.csv", index=False, mode='a')
+        flag = 1
+
+

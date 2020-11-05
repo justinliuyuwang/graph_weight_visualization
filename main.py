@@ -12,7 +12,7 @@ from scipy.cluster.hierarchy import dendrogram, linkage
 from scipy.spatial.distance import squareform
 from sklearn.manifold import MDS
 
-df = pd.read_csv('DistanceData.csv')
+df = pd.read_csv('inputs/cleandata/distance_data.csv')
 print(df)
 
 category_list = df['Category'].unique()
@@ -42,12 +42,12 @@ for category in category_list:
     print(matrix_df)
 
     for index, row in current_category_data.iterrows():
-        #if row['Distance_m'] < 0.08:
+        if row['Distance_m'] < 0.07:
             matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = row['Distance_m']
             matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = row['Distance_m']
-        #else:
-         #   matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = 0
-         #   matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = 0
+        else:
+            matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = 0
+            matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = 0
 
     #print(matrix_df)
 
@@ -99,10 +99,12 @@ for category in category_list:
     A = matrix_df
     G = nx.from_pandas_adjacency(matrix_df)
 
-    pos = nx.spring_layout(G, weight='weight')
+    pos = nx.kamada_kawai_layout(G, weight='weight')
     # pos = nx.spectral_layout(G)
-    nx.draw_networkx(G, with_labels=True, node_size=4, width=0.3, font_size=3, pos=pos)
-    nx.draw_networkx_labels(G, pos=pos)
+    #nx.draw_networkx(G, with_labels=True, node_size=4, width=0.3, font_size=3, pos=pos)
+   #nx.draw_spring(G)
+    nx.draw_kamada_kawai(G, with_labels=True)
+    #nx.draw_networkx_labels(G, pos=pos, with_labels)
     plt.show()
 
     #need a cutoff for force directed... see matrix filling above. will work with dynamic cutoffs
