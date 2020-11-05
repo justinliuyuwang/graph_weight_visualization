@@ -41,13 +41,18 @@ for category in category_list:
     matrix_df = pd.DataFrame(data=distance_matrix, index=unique_items_in_category, columns=unique_items_in_category)
     print(matrix_df)
 
+    matrix_df_for_force_graph = matrix_df.copy()
+
     for index, row in current_category_data.iterrows():
+        matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = row['Distance_m']
+        matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = row['Distance_m']
+
         if row['Distance_m'] < 0.07:
-            matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = row['Distance_m']
-            matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = row['Distance_m']
+            matrix_df_for_force_graph.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = row['Distance_m']
+            matrix_df_for_force_graph.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = row['Distance_m']
         else:
-            matrix_df.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = 0
-            matrix_df.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = 0
+            matrix_df_for_force_graph.at[row['Unique_pair_item1'], row['Unique_pair_item2']] = 0
+            matrix_df_for_force_graph.at[row['Unique_pair_item2'], row['Unique_pair_item1']] = 0
 
     #print(matrix_df)
 
@@ -77,36 +82,23 @@ for category in category_list:
 
     #seaborn cluster + dendrogram
     g = sns.clustermap(matrix_df)
-    plt.title(category + " dendrogram and clustered heatmap")
+
+    #plt.title(category + " dendrogram and clustered heatmap")
     plt.savefig('./figures/' + category + '_dendrogram_and_clustered_heat_map.png')
     plt.show()
 
-    #MDS
-    embedding = MDS(n_components=2, dissimilarity='precomputed').fit_transform(matrix_df)
-    fig = plt.figure(figsize=(15, 8))
-    ax = fig.add_subplot(2, 5, 3)
-    ax.scatter(embedding[:, 0], embedding[:, 1], cmap=plt.cm.Spectral)
-    plt.title(category + " MDS")
-    plt.savefig('./figures/' + category + '_MDS.png')
-    plt.show()
 
 
     #force-directed graph
     import networkx as nx
-    import string
-
 
     A = matrix_df
-    G = nx.from_pandas_adjacency(matrix_df)
+    G = nx.from_pandas_adjacency(matrix_df_for_force_graph)
 
     pos = nx.kamada_kawai_layout(G, weight='weight')
-    # pos = nx.spectral_layout(G)
-    #nx.draw_networkx(G, with_labels=True, node_size=4, width=0.3, font_size=3, pos=pos)
-   #nx.draw_spring(G)
+
     nx.draw_kamada_kawai(G, with_labels=True)
-    #nx.draw_networkx_labels(G, pos=pos, with_labels)
+
+    plt.savefig('./figures/' + category + '_force_directed_graph.png')
+
     plt.show()
-
-    #need a cutoff for force directed... see matrix filling above. will work with dynamic cutoffs
-
-#need mroe whitespace
